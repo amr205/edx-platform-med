@@ -34,14 +34,14 @@ def third_party_auth_context(request, redirect_to, tpa_hint=None):
 
     """
     context = {
-        "currentProvider": None,
-        "platformName": configuration_helpers.get_value('PLATFORM_NAME', settings.PLATFORM_NAME),
+        "current_provider": None,
+        "platform_name": configuration_helpers.get_value('PLATFORM_NAME', settings.PLATFORM_NAME),
         "providers": [],
-        "secondaryProviders": [],
-        "finishAuthUrl": None,
-        "errorMessage": None,
-        "registerFormSubmitButtonText": _("Create Account"),
-        "syncLearnerProfileData": False,
+        "secondary_providers": [],
+        "finish_auth_url": None,
+        "error_message": None,
+        "register_form_submit_button_text": _("Create Account"),
+        "sync_learner_profile_data": False,
         "pipeline_user_details": {}
     }
 
@@ -50,21 +50,21 @@ def third_party_auth_context(request, redirect_to, tpa_hint=None):
             info = {
                 "id": enabled.provider_id,
                 "name": enabled.name,
-                "iconClass": enabled.icon_class or None,
-                "iconImage": enabled.icon_image.url if enabled.icon_image else None,
-                "skipHintedLogin": enabled.skip_hinted_login_dialog,
-                "loginUrl": pipeline.get_login_url(
+                "icon_class": enabled.icon_class or None,
+                "icon_image": enabled.icon_image.url if enabled.icon_image else None,
+                "skip_hinted_login": enabled.skip_hinted_login_dialog,
+                "login_url": pipeline.get_login_url(
                     enabled.provider_id,
                     pipeline.AUTH_ENTRY_LOGIN,
                     redirect_url=redirect_to,
                 ),
-                "registerUrl": pipeline.get_login_url(
+                "register_url": pipeline.get_login_url(
                     enabled.provider_id,
                     pipeline.AUTH_ENTRY_REGISTER,
                     redirect_url=redirect_to,
                 ),
             }
-            context["providers" if not enabled.secondary else "secondaryProviders"].append(info)
+            context["providers" if not enabled.secondary else "secondary_providers"].append(info)
 
         running_pipeline = pipeline.get(request)
         if running_pipeline is not None:
@@ -77,9 +77,9 @@ def third_party_auth_context(request, redirect_to, tpa_hint=None):
                 context['pipeline_user_details'] = user_details
 
             if current_provider is not None:
-                context["currentProvider"] = current_provider.name
-                context["finishAuthUrl"] = pipeline.get_complete_url(current_provider.backend_name)
-                context["syncLearnerProfileData"] = current_provider.sync_learner_profile_data
+                context["current_provider"] = current_provider.name
+                context["finish-auth_url"] = pipeline.get_complete_url(current_provider.backend_name)
+                context["sync_learner_profile_data"] = current_provider.sync_learner_profile_data
 
                 if current_provider.skip_registration_form:
                     # As a reliable way of "skipping" the registration form, we just submit it automatically
@@ -89,7 +89,7 @@ def third_party_auth_context(request, redirect_to, tpa_hint=None):
         for msg in messages.get_messages(request):
             if msg.extra_tags.split()[0] == "social-auth":
                 # msg may or may not be translated. Try translating [again] in case we are able to:
-                context["errorMessage"] = _(str(msg))  # pylint: disable=E7610
+                context["error_message"] = _(str(msg))  # pylint: disable=E7610
                 break
 
     return context
@@ -104,6 +104,6 @@ def get_mfe_context(request, redirect_to, tpa_hint=None):
     country_code = country_code_from_ip(ip_address)
     context = third_party_auth_context(request, redirect_to, tpa_hint)
     context.update({
-        'countryCode': country_code,
+        'country_code': country_code,
     })
     return context
